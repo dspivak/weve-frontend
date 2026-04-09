@@ -1,0 +1,41 @@
+steps:
+  # Build the image with build arguments
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_URL=${_SUPABASE_URL}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY}'
+      - '--build-arg'
+      - 'NEXT_PUBLIC_API_URL=${_API_URL}'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-frontend'
+      - '.'
+
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-frontend']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'weve-frontend'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-frontend'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'NEXT_PUBLIC_SUPABASE_URL=${_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY},NEXT_PUBLIC_API_URL=${_API_URL},NEXT_PUBLIC_FRONTEND_URL=https://weve-frontend-1035733686001.us-central1.run.app'
+
+substitutions:
+  _SUPABASE_URL: 'https://wvgfncalgqqgkdtjodtp.supabase.co'
+  _SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2Z2ZuY2FsZ3FxZ2tkdGpvZHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0Njc3MDEsImV4cCI6MjA4ODA0MzcwMX0.U5gk48i2XtGeTF8QOFdFq0xkYb0qFwYjmmipppnONvg'
+  _API_URL: 'https://weve-backend-1035733686001.us-central1.run.app'
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-frontend'
