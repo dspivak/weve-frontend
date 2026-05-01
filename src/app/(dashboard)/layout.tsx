@@ -42,6 +42,7 @@ export default function DashboardLayout({
 
   const isChatPage = pathname?.startsWith("/dashboard/chat") ?? false;
   const isNewPfPage = pathname?.startsWith("/dashboard/new-pf") ?? false;
+  const isFlowchartPage = pathname?.startsWith("/dashboard/flowchart") ?? false;
 
   useEffect(() => {
     setMounted(true);
@@ -49,6 +50,14 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!mounted) return;
+
+    // Dev bypass: skip auth entirely in development
+    if (process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === "true") {
+      setUser({ id: "dev-user", email: "dev@local", fullName: "Dev", username: "dev", avatarUrl: null });
+      setAuthChecked(true);
+      return;
+    }
+
     const token = getAccessToken();
     const refreshToken = getRefreshToken();
 
@@ -238,13 +247,13 @@ export default function DashboardLayout({
           </Button>
           <span className="font-semibold text-foreground">Weve</span>
         </header>
-        <main className={cn("flex flex-1 min-w-0", (!isChatPage && !isNewPfPage) && "justify-center")}>
+        <main className={cn("flex flex-1 min-w-0", (!isChatPage && !isNewPfPage && !isFlowchartPage) && "justify-center")}>
           <div
             id="feed-scroll-area"
             data-feed-scroll
             className={cn(
               "flex w-full flex-col bg-background",
-              (isChatPage || isNewPfPage) ? "h-screen overflow-hidden" : "max-w-[600px] border-x border-border"
+              (isChatPage || isNewPfPage || isFlowchartPage) ? "h-screen overflow-hidden" : "max-w-[600px] border-x border-border"
             )}
           >
             {children}

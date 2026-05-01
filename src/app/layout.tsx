@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { Toaster } from "@/components/ui/toast";
+import { DevPanel } from "@/components/DevPanel";
 
 export default function RootLayout({
   children,
@@ -32,6 +33,7 @@ export default function RootLayout({
       >
         {children}
         <Toaster />
+        {process.env.NODE_ENV === "development" && <DevPanel />}
       </body>
     </html>
   );
